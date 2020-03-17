@@ -1,0 +1,5 @@
+---
+- name: "kubeadm | Check if kubeadm was already initiated"
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadmin_file
