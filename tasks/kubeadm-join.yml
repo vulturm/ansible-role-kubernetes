@@ -1,0 +1,34 @@
+---
+- name: Join master node to Kubernetes master
+  shell: >
+    {{ kubernetes_join_command }}
+    --control-plane
+    --apiserver-advertise-address={{ hostvars[inventory_hostname].internal_network_ip | default(ansible_default_ipv4.address, true) }}
+    --ignore-preflight-errors={{ kubernetes_ignore_preflight_errors }}
+    {{ kubernetes_kubeadm_join_extra_opts }}
+  args:
+    creates: /etc/kubernetes/kubelet.conf
+  register: join_master_out
+  become: yes
+  tags:
+    - skip_ansible_lint
+  when:
+    - inventory_hostname in groups['kube_master']
+    - kubernetes_install_only is not defined
+
+#    --certificate-key={{ lookup('file', '{{ kubernetes_secrets_dir }}{{kubernetes_cluster_name}}_cert_key.key') }}
+
+- name: Join worker node to Kubernetes node
+  shell: >
+    {{ kubernetes_join_command }}
+    {{ kubernetes_kubeadm_join_extra_opts }}
+  args:
+    creates: /etc/kubernetes/kubelet.conf
+  register: join_node_out
+  become: yes
+  tags:
+    - skip_ansible_lint
+  when:
+    - inventory_hostname in groups['kube_node']
+    - kubernetes_install_only is not defined
+

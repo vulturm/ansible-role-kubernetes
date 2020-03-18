@@ -1,0 +1,26 @@
+---
+- name: "kubeadm | Create kubeadm token for joining nodes with 24h expiration (default)"
+  command: kubeadm token create --print-join-command
+  changed_when: false
+  register: kubernetes_join_command_result
+  when:
+    - inventory_hostname in groups['kube_master'][0]
+    - kubernetes_install_only is not defined
+
+- name: Set the kubeadm join command globally.
+  set_fact:
+    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout }}"
+  delegate_to: "{{ k8s_host }}"
+  delegate_facts: true
+  loop_control:
+    loop_var: k8s_host
+  loop: "{{ groups['all'] }}"
+  when:
+    - kubernetes_join_command_result.stdout is defined
+    - kubernetes_install_only is not defined
+
+- name: "debug"
+  debug:
+    msg: "Master-token: {{ kubernetes_join_command }}"
+
+

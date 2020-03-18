@@ -10,9 +10,11 @@
 
 - include_tasks: setup-generic.yml
 
-# Set up master.
+# Set up masters.
 - include_tasks: master-setup.yml
-  when: kubernetes_role == 'master'
+  when:
+    - inventory_hostname in groups['kube_master']
+    - kubernetes_install_only is not defined
 
 # Set up nodes.
 - name: Get the kubeadm join command from the Kubernetes master.
