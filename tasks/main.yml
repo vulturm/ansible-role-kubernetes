@@ -8,28 +8,7 @@
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Ensure dependencies are installed.
-  package: name=curl state=present
-
-- name: Install Kubernetes packages.
-  package:
-    name: "{{ item.name | default(item) }}"
-    state: "{{ item.state | default('present') }}"
-  notify: restart kubelet
-  with_items: "{{ kubernetes_packages }}"
-
-- include_tasks: kubelet-setup.yml
-
-- name: Ensure kubelet is started and enabled at boot.
-  service:
-    name: kubelet
-    state: started
-    enabled: true
-
-- name: Check if Kubernetes has already been initialized.
-  stat:
-    path: /etc/kubernetes/admin.conf
-  register: kubernetes_init_stat
+- include_tasks: setup-generic.yml
 
 # Set up master.
 - include_tasks: master-setup.yml
