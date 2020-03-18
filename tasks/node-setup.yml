@@ -1,6 +1,5 @@
 ---
-- name: Join node to Kubernetes master
-  shell: >
-    {{ kubernetes_join_command }}
-    creates=/etc/kubernetes/kubelet.conf
-  tags: ['skip_ansible_lint']
+- name: "kubeadm | Join nodes to Kubernetes cluster"
+  include_tasks: kubeadm-join.yml
+  when:
+    - not kubeadmin_file.stat.exists
