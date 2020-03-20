@@ -29,9 +29,7 @@ Kubernetes packages to be installed on the server. You can either provide a list
 
 The minor version of Kubernetes to install. The plain `kubernetes_version` is used to pin an apt package version on Debian, and as the Kubernetes version passed into the `kubeadm init` command (see `kubernetes_version_kubeadm`). The `kubernetes_version_rhel_package` variable must be a specific Kubernetes release, and is used to pin the version on Red Hat / CentOS servers.
 
-    kubernetes_role: master
-
-Whether the particular server will serve as a Kubernetes `master` (default) or `node`. The master will have `kubeadm init` run on it to intialize the entire K8s control plane, while `node`s will have `kubeadm join` run on them to join them to the `master`.
+Whether the particular server will serve as a Kubernetes `master` or `node` is influenced by the fact that the node is a part of the group `kube_master` or `kube_node`. The master will have `kubeadm init` run on it to intialize the entire K8s control plane, while `node`s will have `kubeadm join` run on them to join them to the `master`.
 
     kubernetes_kubelet_extra_args: ""
     kubernetes_kubelet_extra_args_config_file: /etc/default/kubelet
@@ -103,19 +101,10 @@ None.
     - geerlingguy.kubernetes
 ```
 
-### Two or more nodes (single master) cluster
+### Two or more nodes cluster
 
-Master inventory vars:
-
-```yaml
-kubernetes_role: "master"
-```
-
-Node(s) inventory vars:
-
-```yaml
-kubernetes_role: "node"
-```
+* Master members, add them to: `kube_master` group.
+* Node members, add them to `kube_node` group.
 
 Playbook:
 
