@@ -2,6 +2,7 @@
 - name: Join master node to Kubernetes master
   shell: >
     {{ kubernetes_join_command }}
+    {{ kubernetes_join_master_cert_key }}
     --control-plane
     --apiserver-advertise-address={{ hostvars[inventory_hostname].internal_network_ip | default(ansible_default_ipv4.address, true) }}
     --ignore-preflight-errors={{ kubernetes_ignore_preflight_errors }}

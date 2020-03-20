@@ -1,26 +1,40 @@
 ---
 - name: "kubeadm | Create kubeadm token for joining nodes with 24h expiration (default)"
   command: kubeadm token create --print-join-command
-  changed_when: false
+  changed_when: "'kubeadm join' in kubernetes_join_command_result.stdout"
   register: kubernetes_join_command_result
   when:
     - inventory_hostname in groups['kube_master'][0]
     - kubernetes_install_only is not defined
 
-- name: Set the kubeadm join command globally.
+- name: "kubeadm | Set the kubeadm join command on k8s members"
   set_fact:
     kubernetes_join_command: "{{ kubernetes_join_command_result.stdout }}"
   delegate_to: "{{ k8s_host }}"
   delegate_facts: true
   loop_control:
     loop_var: k8s_host
-  loop: "{{ groups['all'] }}"
+  loop: "{{ groups['kube_master'] + groups['kube_node'] }}"
   when:
     - kubernetes_join_command_result.stdout is defined
     - kubernetes_install_only is not defined
 
-- name: "debug"
-  debug:
-    msg: "Master-token: {{ kubernetes_join_command }}"
+- name: "kubeadm | Upload certs and obtain encryption key"
+  shell: kubeadm init phase upload-certs --upload-certs
+  changed_when: "'Using certificate key' in upload_cert_return.stdout"
+  register: upload_cert_return
+  when:
+    - inventory_hostname in groups['kube_master'][0]
+    - kubernetes_install_only is not defined
 
-
+- name: "kubeadm | Assign decription key on the master nodes."
+  set_fact:
+    kubernetes_join_master_cert_key: "--certificate-key {{ upload_cert_return.stdout_lines[2] }}"
+  delegate_to: "{{ k8s_host }}"
+  delegate_facts: true
+  loop_control:
+    loop_var: k8s_host
+  loop: "{{ groups['kube_master'] }}"
+  when:
+    - upload_cert_return.stdout is defined
+    - kubernetes_install_only is not defined
