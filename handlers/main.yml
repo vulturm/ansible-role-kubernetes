@@ -1,3 +1,6 @@
 ---
 - name: restart kubelet
   service: name=kubelet state=restarted
+
+- name: sysctl apply
+  command: sysctl --system

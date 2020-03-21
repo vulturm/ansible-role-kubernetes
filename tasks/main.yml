@@ -22,4 +22,5 @@
     - inventory_hostname in groups['kube_node']
     - kubernetes_install_only is not defined
 
-#- include_tasks: setup-networking.yml
+# Set up networking.
+- include_tasks: setup-networking.yml

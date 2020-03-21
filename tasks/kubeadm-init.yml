@@ -1,5 +1,5 @@
 ---
-- name: Initialize Kubernetes master with kubeadm init.
+- name: Initialize first Kubernetes master.
   command: >
     kubeadm init
     --pod-network-cidr={{ kubernetes_pod_network.cidr }}

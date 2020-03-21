@@ -1,18 +1,20 @@
 ---
-- name: Configure Flannel networking.
-  command: "{{ item }}"
-  with_items:
-    - kubectl apply -f {{ kubernetes_flannel_manifest_file_rbac }}
-    - kubectl apply -f {{ kubernetes_flannel_manifest_file }}
-  register: flannel_result
-  changed_when: "'created' in flannel_result.stdout"
-  when: kubernetes_pod_network.cni == 'flannel'
+- name: "Setup | Networking | Bridge traffic traverse iptables"
+  lineinfile:
+    dest: /etc/sysctl.d/k8s.conf
+    regexp: '^net.bridge.bridge-nf-call-iptables'
+    line: 'net.bridge.bridge-nf-call-iptables = 1'
+    create: yes
+  notify: sysctl apply
 
-- name: Configure Calico networking.
-  command: "{{ item }}"
-  with_items:
-    - kubectl apply -f {{ kubernetes_calico_manifest_file }}
-  register: calico_result
-  changed_when: "'created' in calico_result.stdout"
-  when: kubernetes_pod_network.cni == 'calico'
-
+- name: "Setup | Networking | Install CNI addon."
+  command: "kubectl apply -f {{ kubernetes_pod_network.yaml_manifest }}"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: cni_result
+  changed_when: "'created' in cni_result.stdout"
+  when:
+    - kubernetes_pod_network.yaml_manifest is defined
+    - kubernetes_pod_network.yaml_manifest | length > 0
+    # we only need to execute this once
+    - inventory_hostname == groups['kube_master'][0]

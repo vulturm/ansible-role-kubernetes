@@ -51,6 +51,27 @@ Whether to remove the taint that denies pods from being deployed to the Kubernet
 
 Whether to enable the Kubernetes web dashboard UI (only accessible on the master itself, or proxied), and the file containing the web dashboard UI manifest.
 
+
+
+    # Flannel CNI.
+    # cidr: '10.244.0.0/16'
+    # https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    #
+    # Calico CNI.
+    # cidr: '192.168.0.0/16'
+    # https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+    #
+    # WeaveNet CNI
+    # cidr: '10.32.0.0/12'
+    # https://cloud.weave.works/k8s/net?k8s-version={{ kubernetes_version }}
+
+    kubernetes_pod_network:
+      # make sure you choose the appropriate subnet
+      cidr: '10.32.0.0/12'
+      yaml_manifest: "https://cloud.weave.works/k8s/net?k8s-version={{ kubernetes_version }}"
+
+
+
     kubernetes_pod_network:
       # Flannel CNI.
       cni: 'flannel'
