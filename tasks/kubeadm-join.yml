@@ -1,5 +1,5 @@
 ---
-- name: Join master node to Kubernetes master
+- name: "kubeadm | Join master node to Kubernetes master"
   shell: >
     {{ kubernetes_join_command }}
     {{ kubernetes_join_master_cert_key }}
@@ -17,9 +17,7 @@
     - inventory_hostname in groups['kube_master']
     - kubernetes_install_only is not defined
 
-#    --certificate-key={{ lookup('file', '{{ kubernetes_secrets_dir }}{{kubernetes_cluster_name}}_cert_key.key') }}
-
-- name: Join worker node to Kubernetes node
+- name: "kubeadm | Join worker node to Kubernetes node"
   shell: >
     {{ kubernetes_join_command }}
     {{ kubernetes_kubeadm_join_extra_opts }}

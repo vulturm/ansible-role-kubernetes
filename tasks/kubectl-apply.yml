@@ -1,5 +1,5 @@
 ---
-- name: "Setup | Apply yaml manifests for customization."
+- name: "Setup | kubectl | Apply yaml manifests for customization."
   command: "kubectl apply -f {{ yaml_manifest }}"
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf

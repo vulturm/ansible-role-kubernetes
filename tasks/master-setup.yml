@@ -1,30 +1,30 @@
 ---
-- name: "kubeadm | Fetch images required for master components"
+- name: "kubeadm | master | Fetch images required for master components"
   command: "kubeadm config images pull --kubernetes-version={{ kubernetes_version_kubeadm }}"
   when:
     - not kubeadmin_file.stat.exists
 
-- name: "kubeadm | Initialize first master"
+- name: "kubeadm | master | Initialize first master"
   include_tasks: kubeadm-init.yml
   when:
     - inventory_hostname == groups['kube_master'][0]
     - not kubeadmin_file.stat.exists
 
-- name: "kubeadm | Create join token."
+- name: "kubeadm | master | Create join token."
   include_tasks: kubeadm-token.yml
 
-- name: "kubeadm | Join other master to the cluster"
+- name: "kubeadm | master | Join other master to the cluster"
   include_tasks: kubeadm-join.yml
   when:
     - inventory_hostname != groups['kube_master'][0]
     - not kubeadmin_file.stat.exists
 
-- name: Ensure .kube directory exists.
+- name: "k8s install | master | Ensure .kube directory exists."
   file:
     path: ~/.kube
     state: directory
 
-- name: Symlink the kubectl admin.conf to ~/.kube/conf.
+- name: "k8s install | master |Symlink the kubectl admin.conf to ~/.kube/conf."
   file:
     src: /etc/kubernetes/admin.conf
     dest: ~/.kube/config
@@ -33,21 +33,9 @@
 
 ## TODO: Check if taint exists with something like `kubectl describe nodes`
 ## instead of using kubernetes_init_stat.stat.exists check.
-#- name: Allow pods on master node (if configured).
-#  command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
-#  when:
-#    - kubernetes_allow_pods_on_master | bool
-#    - not kubernetes_init_stat.stat.exists
-#
-#- name: Check if Kubernetes Dashboard UI service already exists.
-#  shell: kubectl get services --namespace kube-system | grep -q kubernetes-dashboard
-#  changed_when: false
-#  failed_when: false
-#  register: kubernetes_dashboard_service
-#  when: kubernetes_enable_web_ui | bool
-#
-#- name: Enable the Kubernetes Web Dashboard UI (if configured).
-#  command: "kubectl create -f {{ kubernetes_web_ui_manifest_file }}"
-#  when:
-#    - kubernetes_enable_web_ui | bool
-#    - kubernetes_dashboard_service is failed
+- name: "k8s install | master | Allow pods on master node (if configured)."
+  command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
+  when:
+    - inventory_hostname != groups['kube_master'][0]
+    - not kubernetes_init_stat.stat.exists
+    - kubernetes_allow_pods_on_master | bool

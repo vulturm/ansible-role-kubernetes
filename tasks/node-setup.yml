@@ -1,5 +1,5 @@
 ---
-- name: "kubeadm | Join nodes to Kubernetes cluster"
+- name: "kubeadm | node | Join nodes to Kubernetes cluster"
   include_tasks: kubeadm-join.yml
   when:
     - not kubeadmin_file.stat.exists
