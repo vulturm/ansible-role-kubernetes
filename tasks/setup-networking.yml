@@ -7,14 +7,11 @@
     create: yes
   notify: sysctl apply
 
-- name: "Setup | Networking | Install CNI addon."
-  command: "kubectl apply -f {{ kubernetes_pod_network.yaml_manifest }}"
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  register: cni_result
-  changed_when: "'created' in cni_result.stdout"
-  when:
-    - kubernetes_pod_network.yaml_manifest is defined
-    - kubernetes_pod_network.yaml_manifest | length > 0
-    # we only need to execute this once
-    - inventory_hostname == groups['kube_master'][0]
+
+- name: "Setup | Networking | Prepare CNI Addon yaml manifest to be executed."
+  set_fact:
+    kubernetes_apply_yml_manifests:
+      "{{ kubernetes_apply_yml_manifests|default([]) }} +
+        ['{{ kubernetes_pod_network.yaml_manifest }}']
+      "
+  run_once: true

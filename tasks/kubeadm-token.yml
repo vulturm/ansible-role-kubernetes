@@ -20,7 +20,7 @@
     - kubernetes_install_only is not defined
 
 - name: "kubeadm | Upload certs and obtain encryption key"
-  shell: kubeadm init phase upload-certs --upload-certs
+  command: kubeadm init phase upload-certs --upload-certs
   changed_when: "'Using certificate key' in upload_cert_return.stdout"
   register: upload_cert_return
   when:

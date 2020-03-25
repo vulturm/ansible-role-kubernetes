@@ -22,5 +22,11 @@
     - inventory_hostname in groups['kube_node']
     - kubernetes_install_only is not defined
 
-# Set up networking.
+# Set up what's required for networking.
 - include_tasks: setup-networking.yml
+  when:
+    - kubernetes_pod_network.yaml_manifest is defined
+    - kubernetes_pod_network.yaml_manifest | length > 0
+
+# Apply additional configuration
+- include_tasks: kubectl-apply.yml

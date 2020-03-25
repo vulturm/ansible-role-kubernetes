@@ -17,8 +17,6 @@ kubernetes_kubeadm_init_extra_opts: ""
 kubernetes_join_command_extra_opts: ""
 
 kubernetes_allow_pods_on_master: true
-kubernetes_enable_web_ui: true
-kubernetes_web_ui_manifest_file: https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 
 # Flannel CNI.
 # cidr: '10.244.0.0/16'
@@ -47,3 +45,5 @@ kubernetes_apt_repository: "deb http://apt.kubernetes.io/ kubernetes-xenial {{ k
 kubernetes_apt_ignore_key_error: false
 
 kubernetes_yum_arch: x86_64
+
+kubernetes_apply_yml_manifests: []

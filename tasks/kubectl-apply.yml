@@ -1,0 +1,15 @@
+---
+- name: "Setup | Apply yaml manifests for customization."
+  command: "kubectl apply -f {{ yaml_manifest }}"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: manifest_result
+  changed_when: "'created' in manifest_result.stdout"
+  loop_control:
+    loop_var: yaml_manifest
+  loop: "{{ kubernetes_apply_yml_manifests }}"
+  when:
+    - kubernetes_apply_yml_manifests is defined
+    - kubernetes_apply_yml_manifests | length > 0
+    # we only need to execute them on a single node
+    - inventory_hostname == groups['kube_master'][0]
